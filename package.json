@@ -1,0 +1,10 @@
+{
+  "name": "momence",
+  "version": "1.0.0",
+  "description": "Momence technical task",
+  "main": "index.js",
+  "repository": "git@github.com:ludovitkapusta/momence.git",
+  "author": "Ludovit Kapusta <ludovit.kapusta@gmail.com>",
+  "license": "MIT",
+  "private": true
+}
