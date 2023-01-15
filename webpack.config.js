@@ -8,7 +8,15 @@ module.exports = {
     filename: 'bundle.js'
   },
   devServer: {
-    port: 8080
+    historyApiFallback: true,
+    port: 8080,
+    proxy: {
+      '/': {
+        target: 'https://www.cnb.cz/',
+        secure: true,
+        changeOrigin: true
+      }
+    }
   },
   module: {
     rules: [
@@ -21,10 +29,6 @@ module.exports = {
         test: /\.tsx?$/,
         exclude: /node_modules/,
         loader: 'ts-loader'
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader']
       }
     ]
   },
