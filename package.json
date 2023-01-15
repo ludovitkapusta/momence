@@ -8,13 +8,17 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "webpack serve --mode development --open --hot",
+    "dev": "webpack serve --mode development --hot",
     "build": "webpack --mode production"
   },
   "resolutions": {
     "styled-components": "^5"
   },
   "dependencies": {
+    "@tanstack/react-query": "^4.22.0",
+    "@types/lodash": "^4.14.191",
+    "formik": "^2.2.9",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-reset": "^4.4.5"
