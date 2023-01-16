@@ -1,4 +1,4 @@
-export const fetchTXTData = (url: string) =>
+export const fetchTXTData = (url: string): Promise<string | void> =>
   fetch(`${url}`, {
     method: 'GET',
     headers: {

@@ -1,8 +1,9 @@
 import React from 'react'
 import { Reset } from 'styled-reset'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import CurrencyConvertor from './CurrencyConvertor'
 import { createGlobalStyle, ThemeProvider } from 'styled-components'
+
+import CurrencyConvertor from './CurrencyConvertor'
 import { theme } from '../themes/defaultTheme'
 
 const queryClient = new QueryClient({

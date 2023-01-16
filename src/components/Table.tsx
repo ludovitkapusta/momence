@@ -1,6 +1,7 @@
 import React from 'react'
 import { map } from 'lodash'
 import styled from 'styled-components'
+
 import { TableBodyType, TableHeadType, TableRowsType } from '../@types'
 
 interface Props {
