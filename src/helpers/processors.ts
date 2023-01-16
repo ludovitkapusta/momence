@@ -11,8 +11,8 @@ export const createTableHeaders = (items: string[]): TableHeadType[] =>
     title: item
   }))
 
-export const createArrayOfTableRows = (items: string[]): TableRowsType[] =>
-  items.map((item: string) => ({
+export const createArrayOfTableRows = (items: string[][]): TableRowsType[] =>
+  items.map((item: string[]) => ({
     id: item[3],
     country: item[0],
     currency: item[1],

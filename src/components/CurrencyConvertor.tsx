@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import styled from 'styled-components'
 import { Formik, Form, FormikValues } from 'formik'
+import { flow, isEmpty } from 'lodash'
 
 import { fetchTXTData } from '../service/api'
 import { Urls } from '../@types/enums'
@@ -9,8 +10,7 @@ import Table from './Table'
 import Input from './form/Input'
 import Button from './Button'
 import Select from './form/Select'
-import { flow, isEmpty } from 'lodash'
-import { getFirstLine, removeFirstAndLastLine, splitByLines, splitByPipes } from '../helpers/parsers'
+import { getHeaders, filterCurrencyList, splitByLines, splitByPipes } from '../helpers/parsers'
 import { TableBodyType, TableHeadType, TableRowsType } from '../@types'
 import { createArraysByLines, createArrayOfTableRows, createTableHeaders } from '../helpers/processors'
 
@@ -31,13 +31,10 @@ const CurrencyConvertor = () => {
 
   const tableData = useMemo(() => {
     if (data) {
-      const body: TableBodyType = flow([
-        splitByLines,
-        removeFirstAndLastLine,
-        createArraysByLines,
-        createArrayOfTableRows
-      ])(data as string)
-      const header: TableHeadType[] = flow([getFirstLine, splitByPipes, createTableHeaders])(data as string)
+      const header: TableHeadType[] = flow([getHeaders, splitByPipes, createTableHeaders])(data as string)
+      const body: TableBodyType = flow([splitByLines, filterCurrencyList, createArraysByLines, createArrayOfTableRows])(
+        data as string
+      )
 
       return { header, body }
     }
@@ -88,7 +85,7 @@ const CurrencyConvertor = () => {
   return (
     <StyledCurrencyConvertor>
       <h1>Currency convertor</h1>
-      <div>{isFetching ? 'Updating...' : ''}</div>
+      {isFetching && <div> Updating...</div>}
       <Formik initialValues={{ czkAmount: '', currencyAndAmount: '' }} onSubmit={handleSubmit} validate={validate}>
         {({ errors }) => (
           <StyledForm onChange={handleChange}>
