@@ -37,3 +37,9 @@ To build project run
 ```javascript
 yarn build
 ```
+
+To test run
+
+```javascript
+yarn test
+```
