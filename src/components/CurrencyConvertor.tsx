@@ -1,66 +1,42 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { Formik, Form, FormikValues } from 'formik'
-import { flow, isEmpty } from 'lodash'
+import { isEmpty } from 'lodash'
 
-import { fetchTXTData } from '../service/api'
-import { Urls } from '../@types/enums'
-import Table from './Table'
-import Input from './form/Input'
-import Button from './Button'
-import Select from './form/Select'
-import { getHeaders, filterCurrencyList, splitByLines, splitByPipes } from '../helpers/parsers'
-import { TableBodyType, TableHeadType, TableRowsType } from '../@types'
-import { createArraysByLines, createArrayOfTableRows, createTableHeaders } from '../helpers/processors'
+import Input from './common/form/Input'
+import Button from './common/Button'
+import Select from './common/form/Select'
+import { splitByPipes } from '../helpers/parsers'
 
-const CurrencyConvertor = () => {
-  const [convertedAmount, setConvertedAmount] = useState<
-    | {
-        result: number
-        czkAmount: number
-        selectedCurrency: string
-      }
-    | Record<string, never>
-  >({})
+interface CurrencyConvertorProps {
+  currencyOptions: {
+    label: string
+    value: string
+  }[]
+}
 
-  const { isLoading, error, data, isFetching } = useQuery({
-    queryKey: ['data'],
-    queryFn: () => fetchTXTData(Urls.CNB_DAILY_EXCHANGE_RATES)
-  })
-
-  const tableData = useMemo(() => {
-    if (data) {
-      const header: TableHeadType[] = flow([getHeaders, splitByPipes, createTableHeaders])(data as string)
-      const body: TableBodyType = flow([splitByLines, filterCurrencyList, createArraysByLines, createArrayOfTableRows])(
-        data as string
-      )
-
-      return { header, body }
+type ConvertedAmount =
+  | {
+      result: number
+      czkAmount: number
+      selectedCurrency: string
     }
-  }, [data])
+  | Record<string, never>
+
+const CurrencyConvertor = ({ currencyOptions }: CurrencyConvertorProps) => {
+  const [convertedAmount, setConvertedAmount] = useState<ConvertedAmount>({})
 
   const handleSubmit = useCallback(async (values: FormikValues) => {
     const { czkAmount, currencyAndAmount } = values
-    const [rate, amount, selectedCurrency] = currencyAndAmount.split(/\|/)
+    const [rate, amount, selectedCurrency] = splitByPipes(currencyAndAmount)
+    const absCzkAmount = Math.abs(parseFloat(czkAmount))
 
     setConvertedAmount({
-      result: Math.round((parseFloat(czkAmount) / parseFloat(rate)) * parseFloat(amount) * 100) / 100,
-      czkAmount,
+      result: Math.round((absCzkAmount / parseFloat(rate)) * parseFloat(amount) * 100) / 100,
+      czkAmount: absCzkAmount,
       selectedCurrency
     })
   }, [])
-
-  const selectOptions = useMemo(
-    () =>
-      tableData
-        ? tableData.body.map(({ country, code, rate, amount }: TableRowsType) => ({
-            label: `${country} - ${code}`,
-            value: `${rate}|${amount}|${code}`
-          }))
-        : [],
-    [tableData]
-  )
 
   const validate = useCallback((values: FormikValues) => {
     let errors: FormikValues = {}
@@ -79,58 +55,29 @@ const CurrencyConvertor = () => {
     setConvertedAmount({})
   }, [])
 
-  if (isLoading) return <>'Loading...'</>
-  if (error) return <>There was an error</>
-
   return (
-    <StyledCurrencyConvertor>
-      <h1>Currency convertor</h1>
-      {isFetching && <div> Updating...</div>}
-      <Formik initialValues={{ czkAmount: '', currencyAndAmount: '' }} onSubmit={handleSubmit} validate={validate}>
-        {({ errors }) => (
-          <StyledForm onChange={handleChange}>
-            <Input name="czkAmount" label="Amount in CZK" required={true} type="number" errors={errors} />
-            <Select
-              name="currencyAndAmount"
-              label="Select Currency"
-              required={true}
-              options={selectOptions}
-              errors={errors}
-            />
-            <StyledButton type="submit">Convert</StyledButton>
+    <Formik initialValues={{ czkAmount: '', currencyAndAmount: '' }} onSubmit={handleSubmit} validate={validate}>
+      {({ errors }) => (
+        <StyledForm onChange={handleChange}>
+          <Input name="czkAmount" label="Amount in CZK" required={true} type="number" />
+          <Select name="currencyAndAmount" label="Select Currency" required={true} options={currencyOptions} />
+          <StyledButton type="submit">Convert</StyledButton>
 
-            {!isEmpty(convertedAmount) && isEmpty(errors) && (
-              <StyledConvertedResultWrapper>
-                <StyledCzkAmount>{convertedAmount.czkAmount} CZK =</StyledCzkAmount>
-                <p>
-                  {convertedAmount.result} {convertedAmount.selectedCurrency}
-                </p>
-              </StyledConvertedResultWrapper>
-            )}
-          </StyledForm>
-        )}
-      </Formik>
-
-      <StyledTableWrapper>
-        <Table columns={tableData.header} data={tableData.body} />
-      </StyledTableWrapper>
-    </StyledCurrencyConvertor>
+          {!isEmpty(convertedAmount) && isEmpty(errors) && (
+            <StyledConvertedResultWrapper>
+              <StyledCzkAmount>{convertedAmount.czkAmount} CZK =</StyledCzkAmount>
+              <p data-testid="result">
+                {convertedAmount.result} {convertedAmount.selectedCurrency}
+              </p>
+            </StyledConvertedResultWrapper>
+          )}
+        </StyledForm>
+      )}
+    </Formik>
   )
 }
 
 export default CurrencyConvertor
-
-const StyledCurrencyConvertor = styled.div`
-  margin: 0 auto;
-  width: 480px;
-  padding: 0 10px;
-`
-
-const StyledTableWrapper = styled.div`
-  border: 2px solid ${(props) => props.theme.colors.main};
-  border-radius: ${(props) => props.theme.borderRadius};
-  padding: 10px;
-`
 
 const StyledForm = styled(Form)`
   display: grid;

@@ -3,7 +3,7 @@ import { Reset } from 'styled-reset'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createGlobalStyle, ThemeProvider } from 'styled-components'
 
-import CurrencyConvertor from './CurrencyConvertor'
+import Page from './Page'
 import { theme } from '../themes/defaultTheme'
 
 const queryClient = new QueryClient({
@@ -19,7 +19,7 @@ export const App = () => (
     <GlobalStyle />
     <Reset />
     <QueryClientProvider client={queryClient}>
-      <CurrencyConvertor />
+      <Page />
     </QueryClientProvider>
   </ThemeProvider>
 )

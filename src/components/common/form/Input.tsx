@@ -8,17 +8,16 @@ interface InputProps {
   label: string
   type: 'text' | 'number'
   required?: boolean
-  errors: FormikErrors<FormikValues>
 }
 
-const Input = ({ name, label, type, required = false }: InputProps) => {
+const Input = ({ name, label, type, required = false, ...rest }: InputProps) => {
   return (
     <StyledFormItemWrapper>
       <StyledLabel htmlFor={name}>{label}</StyledLabel>
       <Field id={name} name={name} required={required}>
         {({ field }: FieldProps) => (
           <>
-            <StyledInput {...field} type={type} />
+            <StyledInput {...field} type={type} data-testid={`input-${name}`} {...rest} />
             <ErrorMessage name={name} />
           </>
         )}

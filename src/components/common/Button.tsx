@@ -8,10 +8,18 @@ interface Props {
   disabled?: boolean
   onClick?: () => void
   type: 'submit' | 'button'
+  name?: string
 }
 
-const Button = ({ children, className, disabled, onClick, type }: Props) => (
-  <StyledButton disabled={disabled} onClick={onClick} type={type} className={className}>
+const Button = ({ children, className, disabled, onClick, type, name }: Props) => (
+  <StyledButton
+    disabled={disabled}
+    onClick={onClick}
+    type={type}
+    className={className}
+    name={name}
+    data-testid="button"
+  >
     {children}
   </StyledButton>
 )
